@@ -1,5 +1,7 @@
 #include <vector>
 #include "Log.cpp"
+#include "AdminLog.cpp"
+#include "cmdError.cpp"
 
 #ifndef Logger_CPP
 #define Logger_CPP
@@ -13,10 +15,9 @@ class Logger{
         Logger(){
 		}    
 		          
-        Logger(string usuario, string archivo, int num){
+        Logger(string usuario, string archivo){
             setUsuario(usuario);
             this->archivo=archivo;
-       		this->num=num;
        	}
              
   	    void setUsuario(string usuario){
@@ -49,6 +50,41 @@ class Logger{
 		
 		void addLog(Log* log){
 			logs.push_back(log);
+		}
+		
+		void run(){
+			try{
+				char cmd[25];
+				string temp;
+				AdminLog* al = new AdminLog("logs.bin");
+				al->Leer();
+				while(temp!="exit"){
+					cin>>cmd;
+					if (al->getN()<1){
+						num=0;
+					}
+					else{
+						num=al->getN();
+					}
+					al->addLog(new Log(usuario, cmd, num));
+					al->Escribir();
+					temp=cmd;
+					cmderror(cmd);
+					if (temp=="listar"){
+						al->print();
+					}
+					system(cmd);
+				}
+			}
+			catch(cmdError &e){
+				cout<<e.what()<<endl;
+			}
+		}
+		
+		void cmderror(string cmd){
+			if (_chdir(cmd.c_str())==1){
+				throw cmdError("El comando introducido no es valido");
+			}
 		}
         
         ~Logger(){}    
