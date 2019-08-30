@@ -53,12 +53,12 @@ class Logger{
 		}
 		
 		void run(){
-			try{
-				char cmd[25];
-				string temp;
-				AdminLog* al = new AdminLog("logs.bin");
-				al->Leer();
-				while(temp!="exit"){
+			string cmd;
+			AdminLog* al = new AdminLog("logs.bin");
+			al->Leer();
+			while(cmd!="exit"){
+				try{
+					cout<<"Comando: ";
 					cin>>cmd;
 					if (al->getN()<1){
 						num=0;
@@ -67,23 +67,31 @@ class Logger{
 						num=al->getN();
 					}
 					al->addLog(new Log(usuario, cmd, num));
+					cmderror(cmd, al);
 					al->Escribir();
-					temp=cmd;
-					cmderror(cmd);
-					if (temp=="listar"){
-						al->print();
-					}
-					system(cmd);
 				}
-			}
-			catch(cmdError &e){
-				cout<<e.what()<<endl;
+				catch(cmdError &e){
+					cout<<e.what()<<endl;
+				}
 			}
 		}
 		
-		void cmderror(string cmd){
-			if (_chdir(cmd.c_str())==1){
+		void cmderror(string cmd, AdminLog* al){
+			int error;
+			if (cmd=="listar"){
+				al->print();
+			}else{
+				error=system(cmd.c_str());
+				system("cls");
+			}
+			if (error==1){
 				throw cmdError("El comando introducido no es valido");
+			}else{
+				if(cmd=="listar"){
+					
+				}else{
+					system(cmd.c_str());
+				}
 			}
 		}
         

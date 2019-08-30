@@ -40,7 +40,7 @@ class AdminLog{
             void Escribir(){
             	fstream Escribir(ruta.c_str(), ios::out | ios::binary);
             	for (int i=0; i<logs.size() ;i++){
-            		Log actual= *logs.at(i);
+            		Log actual(logs.at(i)->getUsuario(), logs.at(i)->getComando(), logs.at(i)->getNum());
             		Escribir.seekp(0,ios::end);
 					Escribir.write((char*)(&actual), sizeof(Log)); 
 				}
@@ -49,12 +49,15 @@ class AdminLog{
 			
 			void Leer(){
 				fstream Leer(ruta.c_str(), ios::in | ios::binary);
+				Leer.seekg(0,ios::beg);
+				logs.clear();
+				int c=0;
 				if (!Leer){
 				}else{
 					while(!Leer.eof()){
 						Log actual;
 						Leer.read((char*)(&actual), sizeof(Log));
-						Log* e= &actual;
+						Log* e= new Log(actual.getUsuario(), actual.getComando(), actual.getNum());
 						addLog(e);
 					}
 					Leer.close();
